@@ -22,7 +22,7 @@ spider.py -u url -d deep -f logfile -l loglevel(1-5)  --testself -thread number 
 5. 需要自己实现线程池
 
 
-提示1：使用 re、urllib/urllib2、beautifulsoup/lxml2、threading、optparse、Queue、sqlite3、logger、doctest 等模块
+提示1：使用 re（正则表达式、文本解析）、urllib/urllib2、beautifulsoup/lxml2i(从html和xml文件中提取数据)、threading（多线程）、optparse（命令行参数）、Queue（队列操作）、sqlite3（数据库）、logger(日志)、doctest（测试） 等模块
 
 提示2：注意是“线程池”而不仅仅是多线程
 
