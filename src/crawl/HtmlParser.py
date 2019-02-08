@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 #coding:utf-8
+
 import re
 import urllib.parse
 from bs4 import BeautifulSoup
@@ -46,7 +47,7 @@ class HtmlParser(object):
         #原书代码
         # links = soup.find_all('a',href=re.compile(r'/view/\d+\.htm'))
         #2017-07-03 更新,原因百度词条的链接形式发生改变
-        links = soup.find_all('a', href=re.compile(r'.sina.com.cn/.*'))
+        links = soup.find_all('a', href=re.compile(r'.*news.sina.com.cn/.*'))
         for link in links:
             #提取href属性
             new_url = link['href']
@@ -67,18 +68,30 @@ class HtmlParser(object):
              page_url = 'http://' + page_url;
 
         data['url']=page_url
-        title = soup.find('h1',class_='main-title')
-        if title is None:
-            return None
-        data['title']=title.get_text()
-        data['summary'] = "";
-        '''
-        summarys = soup.find('div',class_='article').find_all('p')
-        #获取到tag中包含的所有文版内容包括子孙tag中的内容,并将结果作为Unicode字符串返回
-        for summary in summarys:
-            data['summary'] += summary.get_text()
-        '''
-        summary = soup.find('div',class_='article').find('p')
-        data['summary'] += summary.get_text()
-        printLog("title:%s is crawlled" %title, "INFO")
+        data['title'] = soup.title.string;
+        data['summary'] = soup.find('meta', {"name":"description"});
+        if data is not None:
+            data['summary'] = data['summary'].get("content");
+
+        printLog("title:%s is crawlled" %data['title'], "INFO")
         return data
+
+if __name__ == "__main__":
+    from urllib.request import urlopen,Request
+    from urllib.parse import urlparse
+    import ssl
+
+    url = sys.argv[1];
+    parser = HtmlParser()
+    ssl._create_default_https_context = ssl._create_unverified_context
+    if not urlparse(url).scheme:
+        url = 'http://' + url;
+
+    req = Request(url, headers={'User-Agent':'Mozilla/5.0'})
+#print(urlopen(req).read())
+    html = urlopen(req).read()
+    soup = BeautifulSoup(html, 'lxml')
+    #print(soup.prettify());
+    new_urls, data = parser.parser(url, html)
+    #print(new_urls)
+    print(data);

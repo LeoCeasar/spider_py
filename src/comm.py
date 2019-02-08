@@ -7,10 +7,11 @@ import hashlib
 from log.myLog import myLog
 
 class webInfo():
-    def __init__(self, url="", pre="", depth=1, summary=''):
+    def __init__(self, url="", pre="", depth=1, title='', summary=''):
         self.url = url;
         self.preUrl= pre;
         self.depth = depth;
+        self.title = title;
         self.summary = summary;
 
 def pathIsExist(path):

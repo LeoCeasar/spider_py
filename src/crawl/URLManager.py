@@ -12,6 +12,29 @@ def clearFile(path):
     f=open(path,'w');
     f.truncate()
     f.close()
+
+
+class TimeThread(threading.Thread):
+    def __init__(self, work_queue):
+        threading.Thread.__init__(self)
+        self.work_queue = work_queue
+        #self.start()
+        #self.lock = lock
+        #
+    def run(self):
+        while True:
+            try:
+                do, args = self.work_queue.get(block=False)
+                do(args)
+                manager = args[0];
+                if manager.tree_size() <= manager.crawl_size:
+                    break;
+                #threadLock.release()
+                self.work_queue.task_done()
+            except:
+                #break
+                printLog("TimeThread (%s) is finised" %self.name, "INFO")
+
             
 
 class UrlManager(object):
@@ -24,6 +47,7 @@ class UrlManager(object):
         self.new_ids.add('webroot');
         self.old_ids = set();
         self.treeFile = "tree.txt";
+        self.crawl_size = 0;
         self.url_timer();
         printLog("UrlManager init successed", "INFO");
 
@@ -74,6 +98,7 @@ class UrlManager(object):
         if url_id is None:
             return False;
         self.old_ids.add(url_id);
+        self.crawl_size = self.crawl_size + 1;
         return True;
 
     def add_new_url(self, url, url_id =None, parent = None):
@@ -99,11 +124,11 @@ class UrlManager(object):
                 self.urlTree.create_node(url, new_id);
             else:
                 self.urlTree.create_node(url, new_id, parent=parent);
-            self.new_ids.add(new_id);
-            printLog("%s url is added" %url, "INFO")
+            #self.new_ids.add(new_id);
+            printLog("%s url add succeed" %url, "INFO")
             return True;
         else:
-            printLog("%s url is failed to added" %url, "ERROR")
+            printLog("%s url is repeated" %url, "DEBUG")
             return False;
 
     def add_new_urls(self, urls, parent=None):
@@ -130,6 +155,8 @@ class UrlManager(object):
         :return:
         '''
         return len(self.old_ids);
+    def tree_size(self):
+        return self.urlTree.size();
 
     def outputTree2file(self):
         clearFile(self.treeFile)
@@ -137,8 +164,9 @@ class UrlManager(object):
         printLog("treefile(%s) is output" %self.treeFile, "INFO")
 
     def url_timer(self):
-        print("已经爬取%s个url，待爬取%s个" %(self.old_url_size(), self.new_url_size()));
+        print("成功爬取(%s/%s)个url，共需爬取%s个" %(self.old_url_size(), self.crawl_size, self.tree_size()));
         print('当前线程数为{}'.format(threading.activeCount()));
-        t=threading.Timer(10,self.url_timer)
-        t.start()
+        if self.tree_size() > self.old_url_size():
+            t=threading.Timer(10,self.url_timer)
+            t.start()
 

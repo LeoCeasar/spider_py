@@ -26,6 +26,7 @@ class HtmlDownloader(object):
         if r.status_code==200:
             #r.encoding='utf-8'
             return r.text
-        printLog("%s url is download failed." %url, "ERROR")
-        return None
+        else:
+            printLog("%s url is download failed." %url, "ERROR")
+            return None
 

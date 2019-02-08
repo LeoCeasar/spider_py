@@ -68,7 +68,24 @@ class dataWeb(webInfo):
             strTemp += items[0][0]+","; 
 
         strTemp = strTemp[:-1];
+        strTemp += "(")
+        if self.preUrl is None:
+            pre_url = 'null';
+        else:
+            pre_url = self.preUrl
 
+        if self.summary is None:
+            summary = 'null'
+        else:
+            summary = self.summary;
+
+        if self.title is None:
+            title = 'null';
+        else:
+            title = self.title;
+
+        strTemp += " ) values ('" + self.url + "','" + pre_url +"',"+str(self.depth)+",'"+title+"','"+summary+"'";
+        '''
         if self.preUrl is None:
             if self.summary is None:
                 strTemp += " ) values ('" + self.url + "', null,"+ str(self.depth) +",null) ";
@@ -81,6 +98,7 @@ class dataWeb(webInfo):
                 strTemp += " ) values ('" + self.url + "','" + self.preUrl + "',"+ str(self.depth) +",'"+ self.summary +"') ";
 
         #strTemp += " ) values ('" + self.url + "','" + self.preUrl + "', date('now'))";
+        '''
         printLog("insert data str:"+strTemp, "DEBUG")
         return strTemp;
 
