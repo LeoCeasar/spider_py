@@ -3,6 +3,15 @@
 import re
 import urllib.parse
 from bs4 import BeautifulSoup
+import sys
+
+if sys.version_info[0] ==3:
+    from urllib.parse import urlparse
+else:
+    from urllib import urlparse
+
+sys.path.append("..");
+from comm import printLog
 
 
 class HtmlParser(object):
@@ -16,7 +25,10 @@ class HtmlParser(object):
         '''
         if page_url is None or html_cont is None:
             return
-        soup = BeautifulSoup(html_cont,'html.parser',from_encoding='utf-8')
+        printLog(page_url + " is crawlling", "INFO");
+        soup = BeautifulSoup(html_cont,'html.parser')
+        #python3 缺省的编码是unicode
+        #soup = BeautifulSoup(html_cont,'html.parser',from_encoding='utf-8')
         new_urls = self._get_new_urls(page_url,soup)
         new_data = self._get_new_data(page_url,soup)
         return new_urls,new_data
@@ -34,7 +46,7 @@ class HtmlParser(object):
         #原书代码
         # links = soup.find_all('a',href=re.compile(r'/view/\d+\.htm'))
         #2017-07-03 更新,原因百度词条的链接形式发生改变
-        links = soup.find_all('a', href=re.compile(r'/item/.*'))
+        links = soup.find_all('a', href=re.compile(r'.sina.com.cn/.*'))
         for link in links:
             #提取href属性
             new_url = link['href']
@@ -50,10 +62,23 @@ class HtmlParser(object):
         :return:返回有效数据
         '''
         data={}
+
+        if not urlparse(page_url).scheme:
+             page_url = 'http://' + page_url;
+
         data['url']=page_url
-        title = soup.find('dd',class_='lemmaWgt-lemmaTitle-title').find('h1')
+        title = soup.find('h1',class_='main-title')
+        if title is None:
+            return None
         data['title']=title.get_text()
-        summary = soup.find('div',class_='lemma-summary')
+        data['summary'] = "";
+        '''
+        summarys = soup.find('div',class_='article').find_all('p')
         #获取到tag中包含的所有文版内容包括子孙tag中的内容,并将结果作为Unicode字符串返回
-        data['summary']=summary.get_text()
+        for summary in summarys:
+            data['summary'] += summary.get_text()
+        '''
+        summary = soup.find('div',class_='article').find('p')
+        data['summary'] += summary.get_text()
+        printLog("title:%s is crawlled" %title, "INFO")
         return data
