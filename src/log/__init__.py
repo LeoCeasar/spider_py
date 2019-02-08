@@ -4,5 +4,5 @@
 if __name__ == "__main__":
 	print("i m only a command options list package");
 else:
-	print('here you are in log')
+	#print('here you are in log')
 	pass; 
