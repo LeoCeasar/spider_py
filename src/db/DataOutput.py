@@ -25,7 +25,7 @@ class DataOutput(object):
     def store_data(self, data):
         if data is None:
             return
-        webTmp = dateWeb();
+        webTmp = dataWeb();
         webTmp.__dict__ = data.__dict__;
         self.db.insertData(webTmp, self.tableInfo)
         #self.datas.append(data);

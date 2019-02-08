@@ -6,9 +6,9 @@ import types;
 import os
 import sys
 
-myPath = os.path.abspath("..");
-sys.path.append(myPath);
-import comm
+#myPath = os.path.abspath("..");
+sys.path.append("..");
+from comm import printLog,webInfo
 
 class dbTable():
     tableName = None;
@@ -36,6 +36,7 @@ class dbTable():
 
         strTemp = strTemp[:-3];
         strTemp += " )";
+        printLog("create table str:%s" %strTemp, "DEBUG")
         return strTemp;
 
     def seletStr(self, offset, count):
@@ -48,14 +49,17 @@ class dbTable():
         if (offset > 0 and count >0):
             strTemp += "limit "+ offset +", " + count;
         #strTemp += " orderby createTime desc"
+
+        printLog("select data str:"+strTrmp, "DEBUG")
         return strTemp;
 
     def showEle(self):
         return self.ele;
 
-class dateWeb(comm.webInfo):
-    url = "";
-    preUrl = __init__(self):
+class dataWeb(webInfo):
+    #url = "";
+    #preUrl = "";
+    def __init__(self):
         super().__init__();
     def insertStr(self, table):
         strTemp = "insert into "+table.tableName +" (";
@@ -64,7 +68,20 @@ class dateWeb(comm.webInfo):
             strTemp += items[0][0]+","; 
 
         strTemp = strTemp[:-1];
-        strTemp += " ) values ('" + self.url + "','" + self.preUrl + "', date('now'))";
+
+        if self.preUrl is None:
+            if self.summary is None:
+                strTemp += " ) values ('" + self.url + "', null,"+ str(self.depth) +",null) ";
+            else:
+                strTemp += " ) values ('" + self.url + "', null,"+ str(self.depth) +",'"+ self.summary +"') ";
+        else:
+            if self.summary is None:
+                strTemp += " ) values ('" + self.url + "','" + self.preUrl + "',"+ str(self.depth) +",null) ";
+            else:
+                strTemp += " ) values ('" + self.url + "','" + self.preUrl + "',"+ str(self.depth) +",'"+ self.summary +"') ";
+
+        #strTemp += " ) values ('" + self.url + "','" + self.preUrl + "', date('now'))";
+        printLog("insert data str:"+strTemp, "DEBUG")
         return strTemp;
 
 class sqliteOp():
@@ -80,9 +97,11 @@ class sqliteOp():
             self.sqlConnect();
             self.cur = self.conn.cursor();
         except sqlite3.Error as e:
-            print(e);
+            printLog("sqliteOp init sqlite3.error :%s" %e, "CRITICAL");
+        except:
+             printLog( "sqliteOp init Error" %sys.exc_info(), "CRITICAL")
         else:
-            print("sqlite3 database initial success");
+            printLog("sqlite3 database initial success", "INFO");
 
     def __del__(self):
         "析构函数"
@@ -90,9 +109,11 @@ class sqliteOp():
         try:
             self.conn.close();
         except sqlite3.Error as e:
-            print(e);
+            printLog("sqliteop del sqlite3.error:" +str(e), "CRITICAL");
+        except:
+             printLog( str(sys.exc_info()), "ERROR")
         else:
-            print("DB connect closed success")
+            printLog("DB connect closed success", "INFO")
 
     def sqlConnect(self):
         "数据库链接"
@@ -107,29 +128,36 @@ class sqliteOp():
             else:
                 self.cur.execute(tableInfo);
         except sqlite3.Error as e:		
-            print(e);
+            printLog("createTable sqlite3.error:" + str(e), "CRITICAL");
         except Exception as e:
-            print("Exeception: %s" % e)
+            printLog("createTable Exeception: %s" % e, "CRITICAL")
+        except:
+            printLog( "createTable error:%s" %sys.exc_info(), "CRITICAL")
         else:
-            print("database create successed");
+            printLog("database create successed", "INFO");
 
-    def insertDate(self, webDate, tableInfo=None):
+    def insertData(self, webData, tableInfo=None):
         "增"
         try :
-            if isinstance(webDate,  comm.webInfo):
-                self.cur.execute(webDate.insertStr(tableInfo));
-            else:
-                self.cur.execute(webDate);
-            self.conn.commit();
+            with sqlite3.connect(self.dbName) as con:
+                cur = con.cursor();
+                if isinstance(webData, webInfo):
+                    cur.execute(webData.insertStr(tableInfo));
+                else:
+                    cur.execute(webData);
+                con.commit();
+                #self.conn.commit();
         except sqlite3.Error as e:
-             print(e);
+            printLog("insertData sqlite3.error:%s" %e, "ERROR");
         except Exception as e:
-             print(e);
+            printLog("insertData Exception:%s" %e, "ERROR");
+        except:
+            printLog( "insertData error:%s" %sys.exc_info(), "ERROR")
         else:
             pass;
 				
 
-    def delDate(self):
+    def delData(self):
         "删"
         pass;
 
@@ -137,19 +165,19 @@ class sqliteOp():
         "改"
         pass;
 
-    def selectDate(self, tableInfo, offset = 0, count = 0):
+    def selectData(self, tableInfo, offset = 0, count = 0):
         "查"
         try:
-            if isinstance(tableInfo,  comm.dbTable):
+            if isinstance(tableInfo, dbTable):
                 self.cur.execute(tableInfo.selectStr(offset, count));
             else:
                 self.cur.execute(tableInfo);
         except sqlite3.Error as e:
-            print(e);
+            printLog("select sqlite3.error:%s" %e, "ERROR");
         except Exception as e:
-            print(e);
+            printLog("select exception error:%s" %e, "ERROR");
         else:
-            print("select from database success");
+            printLog("select from database success", "INFO");
 
     def fetchOne(self):
         "匹配一条数据"
@@ -160,4 +188,4 @@ class sqliteOp():
 
     def fetchAll(self):
         "匹配many条数据"
-           return self.cur.fetchall();
+        return self.cur.fetchall();

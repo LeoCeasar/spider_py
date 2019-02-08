@@ -11,7 +11,42 @@ CRITICAL    当发生严重错误，导致应用程序不能继续运行时记�
 """
  
 import logging
-import logging.config
+#import logging.config
+class myLog():
+    def __init__(self, logStatus=False, LogName='spider.log', logLevel=1):
+        #self.status = logStatus;
+        level = (6-logLevel) * 10;
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(level=level)
+        #self.logger.setLevel(level=logging.INFO)
+        handler = logging.FileHandler(LogName)
+        #formatter = logging.Formatter('%(threadName)s - %(thread)d - %(name)s - %(levelname)s - %(filename)s - %(funcName)s - %(lineno)d - %(module)s - %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        #formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+    
+    def printLog(self, msg, level="DEBUG"):
+        if level == "DEBUG":
+            self.logger.debug(msg)
+        elif level == "INFO":
+            self.logger.info(msg)
+        elif level == "WARN" or level == "WARNING":
+            self.logger.warning(msg)
+        elif level == "ERROR":
+            self.logger.error(msg)
+        elif level == "FATAL" or level == "CRITICAL":
+            self.logger.critical(msg)
+        else:
+            self.logger.debug("error log type :" + msg)
+        
+         
+'''
+         self.logger.info('This is a log info')
+         self.logger.debug('Debugging')
+         self.logger.warning('Warning exists')
+         self.logger.info('Finish')
+
 # 读取日志配置文件内容
 logging.config.fileConfig('./sbin/logging.conf')
 
@@ -24,3 +59,4 @@ logger.info('info message')
 logger.warning('warn message')
 logger.error('error message')
 logger.critical('critical message') 
+'''
