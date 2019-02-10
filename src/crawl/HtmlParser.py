@@ -18,6 +18,7 @@ from comm import printLog
 class HtmlParser(object):
     '''
     html 解析
+    主要是爬取sina.com.cn 下的新闻页面。
     '''
     def __init__(self,key=None):
         self.key = key;
