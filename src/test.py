@@ -13,8 +13,4 @@ ERROR test
 >>> initLog(True)
 >>> printLog("test", "ERROR")
 >>> from spiderList.listOpt import spiderList
-
->>> mylist = spiderList(confPath);
->>> print(mylist.options);
-{'url': 'sina.com.cn', 'depth': '2', 'nthread': '10', 'dbpath': 'spider.db', 'key': None, 'logpath': None, 'loglevel': '1', 'testself': False}
 """
