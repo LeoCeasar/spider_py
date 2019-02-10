@@ -6,6 +6,10 @@ import codecs
 from .dbClass import *
 
 class DataOutput(object):
+    '''
+    数据输出类
+    将数据输出到数据库
+    '''
     def __init__(self) :
         dbName = "spider.db";
         self.db = sqliteOp(dbName);

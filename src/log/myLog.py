@@ -13,6 +13,11 @@ CRITICAL    当发生严重错误，导致应用程序不能继续运行时记�
 import logging
 #import logging.config
 class myLog():
+    '''
+    日志输出管理类
+    用于统一输出接口，为了兼容文本输出或者控制台输出
+    但是由于统一输出之后无法定位到准确代码位置，所以需要在错误提示信息中进行较为精准的描述
+    '''
     def __init__(self, logStatus=False, LogName='spider.log', logLevel=1):
         #self.status = logStatus;
         level = (6-logLevel) * 10;

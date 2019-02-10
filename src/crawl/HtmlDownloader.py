@@ -13,6 +13,11 @@ from comm import printLog
 
 class HtmlDownloader(object):
     def download(self,url):
+        '''
+        下载页面html内容
+        param: url
+        return:Html内容
+        '''
         if url is None:
             return None
         if not urlparse(url).scheme:
@@ -24,7 +29,8 @@ class HtmlDownloader(object):
         headers={'User-Agent':user_agent, 'Connection': 'close',}
         r = requests.get(url,headers=headers)
         if r.status_code==200:
-            #r.encoding='utf-8'
+            r.encoding='utf-8'
+            #r.encoding='GB2312'
             return r.text
         else:
             printLog("%s url is download failed." %url, "ERROR")

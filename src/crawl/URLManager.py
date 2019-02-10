@@ -9,6 +9,11 @@ sys.path.append("..");
 from comm import printLog,getMd5Code
 
 def clearFile(path):
+    '''
+    清空文档内容
+    param: path
+    return:
+    '''
     f=open(path,'w');
     f.truncate()
     f.close()
@@ -38,16 +43,18 @@ class TimeThread(threading.Thread):
             
 
 class UrlManager(object):
+    '''
+    url 管理类
+    '''
     def __init__(self, initUrl, depth=2):
         self.urlTree = Tree();
         self.urlTree.create_node(initUrl, "webroot");
-        #self.urlTree.create_node("webroot "+initUrl, "webroot", data=initUrl);
         self.depth = depth;
         self.new_ids = set();
         self.new_ids.add('webroot');
         self.old_ids = set();
         self.treeFile = "tree.txt";
-        self.crawl_size = 0;
+        self.crawl_size = 0;#测试使用数据
         self.url_timer();
         printLog("UrlManager init successed", "INFO");
 
@@ -55,12 +62,14 @@ class UrlManager(object):
     def has_new_url(self):
         '''
         判断是否有未爬取的url
+        return: True or False
         '''
         return self.new_url_size()!=0
 
     def get_new_urlid(self):
         '''
         获取一个未爬取的URL ID
+        return: id
         '''
         url_id = self.new_ids.pop();
         self.old_ids.add(url_id);
@@ -69,6 +78,8 @@ class UrlManager(object):
     def get_urlInfo_withID(self, url_id):
         '''
         根据id获取一个未爬取的URL info
+        param:id
+        return: url preurl depth
         '''
         url = self.urlTree[url_id].tag;
         pre_id = self.urlTree[url_id].bpointer;
@@ -81,6 +92,7 @@ class UrlManager(object):
     def get_new_url(self):
         '''
         获取一个未爬取的URL
+        在单线程中使用，于多线程中废弃
         '''
         pre_id = self.new_ids.pop();
         
@@ -93,7 +105,7 @@ class UrlManager(object):
 
     def add_old_url(self, url_id):
         '''
-        添加已经获取过的URL ID
+        队列中添加已经获取过的URL ID
         '''
         if url_id is None:
             return False;
@@ -108,7 +120,7 @@ class UrlManager(object):
         :return
         '''
         if url is None:
-            printLog("add new url:url param is none")
+            printLog("add new url:url param is none", "CRITICAL")
             return False;
 
         new_id = 0;
@@ -118,18 +130,20 @@ class UrlManager(object):
             new_id = url_id;
 
         printLog("%s url_id:%s" %(url, new_id), "DEBUG");
-
-        if new_id not in self.new_ids and new_id not in self.old_ids:
-            if parent is None:
-                self.urlTree.create_node(url, new_id);
-            else:
-                self.urlTree.create_node(url, new_id, parent=parent);
+        try:
+            if new_id not in self.new_ids and new_id not in self.old_ids:
+                if parent is None:
+                    self.urlTree.create_node(url, new_id);
+                else:
+                    self.urlTree.create_node(url, new_id, parent=parent);
             #self.new_ids.add(new_id);
-            printLog("%s url add succeed" %url, "INFO")
-            return True;
-        else:
-            printLog("%s url is repeated" %url, "DEBUG")
-            return False;
+                printLog("%s url add succeed" %url, "INFO")
+                return True;
+            else:
+                printLog("%s url is repeated" %url, "DEBUG")
+                return False;
+        except:
+            printLog("add new error:%s" %sys.exc_info(), "ERROR")
 
     def add_new_urls(self, urls, parent=None):
         '''
@@ -156,14 +170,25 @@ class UrlManager(object):
         '''
         return len(self.old_ids);
     def tree_size(self):
+        '''
+        url 树的大小
+        return: url tree size
+        '''
         return self.urlTree.size();
 
     def outputTree2file(self):
+        '''
+        将树结构输出到文本文件中
+        用于测试使用
+        '''
         clearFile(self.treeFile)
         self.urlTree.save2file(self.treeFile);
         printLog("treefile(%s) is output" %self.treeFile, "INFO")
 
     def url_timer(self):
+        '''
+        定时输出，简单实现
+        '''
         print("成功爬取(%s/%s)个url，共需爬取%s个" %(self.old_url_size(), self.crawl_size, self.tree_size()));
         print('当前线程数为{}'.format(threading.activeCount()));
         if self.tree_size() > self.old_url_size():

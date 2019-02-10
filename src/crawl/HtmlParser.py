@@ -16,6 +16,11 @@ from comm import printLog
 
 
 class HtmlParser(object):
+    '''
+    html 解析
+    '''
+    def __init__(self,key=None):
+        self.key = key;
 
     def parser(self,page_url,html_cont):
         '''
@@ -62,36 +67,68 @@ class HtmlParser(object):
         :param soup:
         :return:返回有效数据
         '''
-        data={}
+        try:
+            data={}
+            data['match'] = True;
 
-        if not urlparse(page_url).scheme:
-             page_url = 'http://' + page_url;
+            if not urlparse(page_url).scheme:
+                page_url = 'http://' + page_url;
 
-        data['url']=page_url
-        data['title'] = soup.title.string;
-        data['summary'] = soup.find('meta', {"name":"description"});
-        if data is not None:
-            data['summary'] = data['summary'].get("content");
+            data['url']=page_url
+            data['title'] = soup.title.string;
+            #data['summary'] = soup.find('meta', {"name":"description"});
+            data['summary'] = soup.find('div',class_="keywords");
+            if data['title'] is None:
+                data['title']=''
+            if data['summary'] is not None:
+                data['summary'] = data['summary'].get("data-wbkey");
+                #data['summary'] = data['summary'].get("content");
+            else:
+                data['summary']='';
 
-        printLog("title:%s is crawlled" %data['title'], "INFO")
-        return data
+            if self.key is not None:
+                if self.key not in data['title'] and self.key not in data['summary']:
+                    data['match'] = False;
+
+            #printLog("title:%s is crawlled" %data['title'], "INFO")
+            return data
+        except:
+            printLog("get new data error:%s" %str(sys.exc_info()), "ERROR")
+            if data['title'] is None:
+                data['title']="";
+            if data['summary'] is None:
+                data['summary']=""
+            if self.key is not None:
+                if self.key not in data['title'] and self.key not in data['summary']:
+                    data['match'] = False;
+
+            return data
 
 if __name__ == "__main__":
     from urllib.request import urlopen,Request
     from urllib.parse import urlparse
     import ssl
+    import requests
 
     url = sys.argv[1];
-    parser = HtmlParser()
+    key = sys.argv[2];
+    parser = HtmlParser(key)
     ssl._create_default_https_context = ssl._create_unverified_context
     if not urlparse(url).scheme:
         url = 'http://' + url;
 
-    req = Request(url, headers={'User-Agent':'Mozilla/5.0'})
+    #req = Request(url, headers={'User-Agent':'Mozilla/5.0'})
+    #html = urlopen(req).read()
 #print(urlopen(req).read())
-    html = urlopen(req).read()
+    user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+    headers={'User-Agent':user_agent, 'Connection': 'close',}
+    r = requests.get(url,headers=headers)
+    r.encoding='utf-8'
+    html = r.text
     soup = BeautifulSoup(html, 'lxml')
     #print(soup.prettify());
     new_urls, data = parser.parser(url, html)
+    #print(html);
+    if data['match']:
     #print(new_urls)
-    print(data);
+        print(data);

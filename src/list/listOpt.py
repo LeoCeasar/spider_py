@@ -13,10 +13,11 @@ sys.path.append("..");
 import comm;
     
 class spiderList():
+    '''
+    参数列表管理类
+    '''
     def __init__(self, confPath="../../sbin/conf.ini"):
 
-        '''
-        '''
         '''
         #if not pathIsExist(path):
         try:
@@ -29,6 +30,10 @@ class spiderList():
             print ("the conf.ini don\'t have the key of \"spider\".use default configuration.("+e+")");
         except :
             sys.exit();
+
+        >>> mylist = spiderList();
+        >>> print(mylist.options);
+        {'url': 'sina.com.cn', 'depth': '2', 'nthread': '10', 'dbpath': 'spider.db', 'key': None, 'logpath': None, 'loglevel': '1', 'testself': False}
         '''
 
         self.config = configparser.ConfigParser();
@@ -85,6 +90,5 @@ class spiderList():
         
 
 if __name__ == '__main__':
-    mylist = spiderList();
-    print(mylist.options);
-
+    import doctest
+    doctest.testmod(verbose=True);

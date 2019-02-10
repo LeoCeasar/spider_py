@@ -2,6 +2,7 @@
 # _*_ coding: utf-8 _*_
 
 '''
+test
 the simple options of sqllite database 
 ''' 
 import dbClass
