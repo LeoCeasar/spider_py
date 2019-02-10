@@ -66,7 +66,7 @@ class spiderList():
         
         self.parser.add_option('-k', '--key', action='store', dest='key', help='hte key words of website');
         
-        self.parser.add_option('-l', '--logfile', action='store', dest='logpath', help='the log file');
+        self.parser.add_option('-l', '--logfile', action='store', dest='logpath', help='the log file', default="spider.log");
 
         if self.config['spider']['loglevel'] is None:
             self.parser.add_option('--loglevel', action='store', default=1, help='the log level (1-5)');
