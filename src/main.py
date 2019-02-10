@@ -2,11 +2,12 @@
 #coding:utf-8
 
 import sys
+import os
 #import traceback
 import queue
 import threading
 
-from list.listOpt import spiderList
+from spiderList.listOpt import spiderList
 from crawl.URLManager import UrlManager
 from crawl.HtmlDownloader import HtmlDownloader
 from crawl.HtmlParser import HtmlParser
@@ -139,11 +140,12 @@ if __name__ == "__main__":
         logPath = options.logpath
     
     if options.testself:
-        import doctest;
         if int(options.loglevel) > 3:
-            doctest.testmod(verbose=True);
+            os.system("python3 -m doctest -v ./test.py")
+            #doctest.testmod(verbose=True);
         else:
-            doctest.testmod();
+            os.system("python3 -m doctest ./test.py")
+            #doctest.testmod();
 
     initLog(logStatus, logPath, int(options.loglevel))
     printLog(str(options), "INFO");

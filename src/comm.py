@@ -68,7 +68,7 @@ def initLog(logReal, logFile="spider.log", logLevel=5):
     if logStatus:
         log = myLog(logStatus, logFile, logLevel);
 
-def printLog(msg, level):
+def printLog(msg, level="INFO"):
     '''
     日志输出接口增加通用性
     >>> printLog("test", "ERROR")
@@ -91,6 +91,9 @@ else :
         print(level + " " + msg);
 '''
 
-if __name__ == "__main__":
+def testSelf():
     import doctest
     doctest.testmod(verbose=True);
+
+if __name__ == "__main__":
+    testSelf()
