@@ -1,5 +1,6 @@
 # spider.py
 
+操作系统 Centos 6.9 X86
 catch website info
 
 使用 Python 编写一个网站爬虫程序，支持参数如下：
